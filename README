@@ -1,0 +1,73 @@
+WHAT IS trashtimer.pl ?
+=======================
+This script is build for main use by crontab. It will delete all
+files which are older as the specified time. Through this you can
+delete files in your trash which a specific age if your GUI doesn't
+support this feature by default.
+
+
+FEATURES
+========
+Deletes files in trash by defined time, furthermore is the script
+easy usable by the crontab
+
+
+SOFTWARE REQUIREMENTS
+=====================
+- Perl 5.22.2 or higher (not tested older versions)
+
+
+DOCUMENTATION
+=============
+Execute trashtimer.pl with or without options or arguments. No arguments
+means default usage values.
+
+./trashtimer.pl [--time 1y1m1w1d] [--directory /path/to/target] [--help]
+
+Available options:
+
+	-t TIME, --time TIME
+		define time as
+		 1y → 1 year (365 days)
+		 1m → 1 month (30 days, default)
+		 1w → 1 week (7 days)
+		 1d → 1 day
+
+	-d /PATH/, --directory /PATH/
+		must be path to user trash; normally found at
+		 $HOME/.local/share/Trash/ (default)
+		the folder must contain two directories: "info" and
+		"files"
+
+	-h, --help
+		show help
+
+Of course you can configure it as crontab job. Some GUIs bring such
+features by default, e.g. KDE. Much other GUIs don't have such functions.
+This way you're independent if this function is availabe is or not.
+
+
+LICENSE
+=======
+It is distributed under the GNU General Public License
+version 3 - see the accompanying file "LICENSE" or
+http://www.gnu.org/licenses/gpl.html for more details.
+
+
+GET SOURCE
+==========
+You find package files on
+https://github.com/DomAsProgrammer/
+
+
+REPORTING BUGS
+==============
+I would be glad to hear positive respone, also you can report
+bugs, errors or proposal to DomAsProgrammer@gmail.com or on
+https://github.com/DomAsProgrammer
+
+
+AUTHORS
+=======
+- Dominik Bernhardt 
+    DomAsProgrammer@gmail.com ; https://github.com/DomAsProgrammer
