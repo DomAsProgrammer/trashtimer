@@ -46,6 +46,12 @@ Of course you can configure it as crontab job. Some GUIs bring such
 features by default, e.g. KDE. Much other GUIs don't have such functions.
 This way you're independent if this function is availabe is or not.
 
+Maximum period of time:
+- year: 99
+- month: 11
+- week: 3
+- day: 6
+
 
 LICENSE
 =======

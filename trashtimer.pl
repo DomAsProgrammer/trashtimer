@@ -51,32 +51,49 @@ if ( ! ($time) ) {
 	}
 
 # Test time string and split up time specifications
-if ( $time !~ m/([0-9]{1,2}y)|([0-9]{1,2}m)|([1-3]w)|([1-6]d)/i ) {
-	print STDERR "Time information \"$time\" is invalid!\n";
+if ( $time !~ m/^(([0-9]{1,2}y)|((1{1}[0-1]{1}|[1-9]{1})m)|([1-3]w)|([1-6]d))$/i ) {
+	print STDERR "Time information \"$time\" is invalid!\n",
+		"\tmaximum of year is 99\n",
+		"\tmaximum of month is 11\n",
+		"\tmaximum of week is 3\n",
+		"\tmaximum of day is 6\n";
+	usage(3);
 	}
 else {
-	$year = ($time =~ m/([0-9]{1,2}y)/i)[0];
-	if ( $year ) { $year =~ s/y//i; }
-	else { $year = 0; }
+	if ( $time =~ m/[0-9]{1,2}(?=y)/ip ) {
+		$year = ${^MATCH};
+		}
+	else {
+		$year = 0;
+		}
 
-	$month = ($time =~ m/([0-9]{1,2}m)/i)[0];
-	if ( $month ) { $month =~ s/m//i; }
-	else { $month = 0; }
+	if ( $time =~ m/[0-9]{1,2}(?=m)/ip ) {
+		$month = ${^MATCH};
+		}
+	else {
+		$month = 0;
+		}
 
-	$week = ($time =~ m/([1-3]w)/i)[0];
-	if ( $week ) { $week =~ s/w//i; }
-	else { $week = 0; }
+	if ( $time =~ m/[1-3](?=w)/ip ) {
+		$week = ${^MATCH};
+		}
+	else {
+		$week = 0;
+		}
 
-	$day = ($time =~ m/([1-6]d)/i)[0];
-	if ( $day ) { $day =~ s/d//i; }
-	else { $day = 0; }
+	if ( $time =~ m/[1-6](?=d)/ip ) {
+		$day = ${^MATCH};
+		}
+	else {
+		$day = 0;
+		}
 	}
 
 # Calculate time
 my $countdown = ($year * 365 + $month * 30 + $week * 7 + $day) * 24 * 60 ** 2;	# time difference in format of time module
 if ( $countdown <= 0 ) {
 	print STDERR "You have set time to zero. If you want this use your GUI's function to clear trash!\n";
-	usage(3);
+	usage(4);
 	}
 
 # Collect informations about time
@@ -91,22 +108,22 @@ foreach my $file ( glob("\"$Trashdir\"/info/*\.trashinfo") ) {
 my $now = time;			# calculation time
 foreach my $element ( @list ) {
 		# Is the file older as the maximal time?
-		if ( ($now - ${$element}{'deltime'}) > $countdown ) {
+		if ( ($now - $element->{deltime}) > $countdown ) {
 		my $logdate = localtime(time);	# human readable time for log
 			# Delete original if it is a folder and log
-			if ( -d ${$element}{'originalfile'} ) {
-				print "$logdate : Deleted original folder: ${$element}{'originalfile'}\n";
-				remove_tree(${$element}{'originalfile'}) || die "Can't delete folder \"${$element}{'originalfile'}\"!\n"; 
+			if ( -d $element->{originalfile} ) {
+				print "$logdate : Deleted original folder: $element->{originalfile}\n";
+				remove_tree($element->{originalfile}) || die "Can't delete folder \"$element->{originalfile}\"!\n"; 
 				}
 			# Delete original if it is a file and log
-			elsif ( -e ${$element}{'originalfile'} || -l ${$element}{'originalfile'} ) {
-				print "$logdate : Deleted original file: ${$element}{'originalfile'}\n";
-				unlink(${$element}{'originalfile'}) || die "Can't delete file \"${$element}{'originalfile'}\"!\n"; 
+			elsif ( -e $element->{originalfile} || -l $element->{originalfile} ) {
+				print "$logdate : Deleted original file: $element->{originalfile}\n";
+				unlink($element->{originalfile}) || die "Can't delete file \"$element->{originalfile}\"!\n"; 
 				}
 			# Delete infofile and log
-			if ( -e ${$element}{'infofile'} ) {
-				print "$logdate : Deleted info file: ${$element}{'infofile'}\n";
-				unlink(${$element}{'infofile'}) || die "Can't delete file \"${$element}{'infofile'}\"!\n"; 
+			if ( -e $element->{infofile} ) {
+				print "$logdate : Deleted info file: $element->{infofile}\n";
+				unlink($element->{infofile}) || die "Can't delete file \"$element->{infofile}\"!\n"; 
 				}
 			}
 	}
