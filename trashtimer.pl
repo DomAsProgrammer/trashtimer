@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # License:		GPLv3 - see license file or http://www.gnu.org/licenses/gpl.html
-# Program-version:	1.0, (17th July 2016)
+# Program-version:	1.1, (10th September 2016)
 # Description:		Clear out files in trash after defined time
 # Contact:		Dominik Bernhardt - domasprogrammer@gmail.com or https://github.com/DomAsProgrammer
 
@@ -96,7 +96,7 @@ if ( $countdown <= 0 ) {
 	usage(4);
 	}
 
-# Collect informations about time
+# Collect information about time
 foreach my $file ( glob("\"$Trashdir\"/info/*\.trashinfo") ) {
 	push(@list, {	'deltime'	=> getdeltime($file),			# time from deletion in form of time module
 			'infofile'	=> "$file",				# file in pos
@@ -107,25 +107,25 @@ foreach my $file ( glob("\"$Trashdir\"/info/*\.trashinfo") ) {
 	
 my $now = time;			# calculation time
 foreach my $element ( @list ) {
-		# Is the file older as the maximal time?
-		if ( ($now - $element->{deltime}) > $countdown ) {
-		my $logdate = localtime(time);	# human readable time for log
-			# Delete original if it is a folder and log
-			if ( -d $element->{originalfile} ) {
-				print "$logdate : Deleted original folder: $element->{originalfile}\n";
-				remove_tree($element->{originalfile}) || die "Can't delete folder \"$element->{originalfile}\"!\n"; 
-				}
-			# Delete original if it is a file and log
-			elsif ( -e $element->{originalfile} || -l $element->{originalfile} ) {
-				print "$logdate : Deleted original file: $element->{originalfile}\n";
-				unlink($element->{originalfile}) || die "Can't delete file \"$element->{originalfile}\"!\n"; 
-				}
-			# Delete infofile and log
-			if ( -e $element->{infofile} ) {
-				print "$logdate : Deleted info file: $element->{infofile}\n";
-				unlink($element->{infofile}) || die "Can't delete file \"$element->{infofile}\"!\n"; 
-				}
+	# Is the file older as the maximal time?
+	if ( ($now - $element->{deltime}) > $countdown ) {
+	my $logdate = localtime(time);	# human readable time for log
+		# Delete original if it is a folder and log
+		if ( -d $element->{originalfile} ) {
+			print "$logdate : Deleted original folder: $element->{originalfile}\n";
+			remove_tree($element->{originalfile}) || die "Can't delete folder \"$element->{originalfile}\"!\n"; 
 			}
+		# Delete original if it is a file and log
+		elsif ( -e $element->{originalfile} || -l $element->{originalfile} ) {
+			print "$logdate : Deleted original file: $element->{originalfile}\n";
+			unlink($element->{originalfile}) || die "Can't delete file \"$element->{originalfile}\"!\n"; 
+			}
+		# Delete infofile and log
+		if ( -e $element->{infofile} ) {
+			print "$logdate : Deleted info file: $element->{infofile}\n";
+			unlink($element->{infofile}) || die "Can't delete file \"$element->{infofile}\"!\n"; 
+			}
+		}
 	}
 
 exit(0);
