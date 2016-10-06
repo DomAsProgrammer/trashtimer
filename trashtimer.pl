@@ -14,9 +14,10 @@ use File::Path qw(remove_tree);
 use Env;
 use File::Basename;
 
-### Program ###
+### Variables ###
 
 my @time	= ();
+my $time	= '';
 my $Trashdir	= "$ENV{HOME}/.local/share/Trash";
 my $help	= '';
 my $year	= '';
@@ -45,14 +46,18 @@ if ( ! -d $Trashdir || ! -d "$Trashdir/info" || ! -d "$Trashdir/files" ) {
 	}
 
 # Set up the time string or default
-my $time = join('', @time);
+if ( @time ) {
+	$time = join('', @time);
+	$time =~ s/\s+//g;
+	}
+
 if ( ! ($time) ) { 
 	$time = "1m";
 	}
 
 # Test time string and split up time specifications
-if ( $time !~ m/^(([0-9]{1,2}y)|((1{1}[0-1]{1}|[1-9]{1})m)|([1-3]w)|([1-6]d))$/i ) {
-	print STDERR "Time information \"$time\" is invalid!\n",
+if ( $time !~ m/^(([0-9]{1,2}y)|(((11|10)|[1-9]{1})m)|([1-3]w)|([1-6]d))$/i ) {
+	print STDERR "Time information \"@time\" is invalid!\n",
 		"\tmaximum of year is 99\n",
 		"\tmaximum of month is 11\n",
 		"\tmaximum of week is 3\n",
@@ -97,10 +102,10 @@ if ( $countdown <= 0 ) {
 	}
 
 # Collect information about time
-foreach my $file ( glob("\"$Trashdir\"/info/*\.trashinfo") ) {
-	push(@list, {	'deltime'	=> getdeltime($file),			# time from deletion in form of time module
-			'infofile'	=> "$file",				# file in pos
-			'originalfile'	=> getoriginal($file, $Trashdir)	# real deleted file
+foreach my $file ( glob("\"$Trashdir\"/info/*\.trashinfo"), glob("\"$Trashdir\"/info/\.*\.trashinfo")  ) {
+	push(@list, {	deltime		=> (stat($file))[9],			# time from deletion in form of time module
+			infofile	=> $file,				# file in pos
+			originalfile	=> getoriginal($file, $Trashdir)	# real deleted file
 			}
 		);
 	}
@@ -112,17 +117,17 @@ foreach my $element ( @list ) {
 	my $logdate = localtime(time);	# human readable time for log
 		# Delete original if it is a folder and log
 		if ( -d $element->{originalfile} ) {
-			print "$logdate : Deleted original folder: $element->{originalfile}\n";
+			print "$logdate : Deleted original folder: \"$element->{originalfile}\"\n";
 			remove_tree($element->{originalfile}) || die "Can't delete folder \"$element->{originalfile}\"!\n"; 
 			}
 		# Delete original if it is a file and log
 		elsif ( -e $element->{originalfile} || -l $element->{originalfile} ) {
-			print "$logdate : Deleted original file: $element->{originalfile}\n";
+			print "$logdate : Deleted original file: \"$element->{originalfile}\"\n";
 			unlink($element->{originalfile}) || die "Can't delete file \"$element->{originalfile}\"!\n"; 
 			}
 		# Delete infofile and log
 		if ( -e $element->{infofile} ) {
-			print "$logdate : Deleted info file: $element->{infofile}\n";
+			print "$logdate : Deleted info file: \"$element->{infofile}\"\n";
 			unlink($element->{infofile}) || die "Can't delete file \"$element->{infofile}\"!\n"; 
 			}
 		}
@@ -147,18 +152,14 @@ sub usage {
 	exit($level);
 	}
 
-sub getdeltime {
-	my $infofile = shift;
-	return((stat($infofile))[9]);
-	}
-
 sub getoriginal {
 	my $infofile	= shift;
 	my $dir		= shift;
-	my $original	= '';
-	$infofile 	= (fileparse($infofile, qr/\.[^.]*/))[0];
-	$original	= "$dir/files/$infofile";
-	if ( -e $original || -l $original ) { return($original); }
+	my $original 	= (fileparse($infofile, qr/\.[^.]*/))[0];
+	$original	= "$dir/files/$original";
+	if ( -e $original || -l $original ) {
+		return($original);
+		}
 	else {
 		print STDERR "No file or folder \"$original\" found!\n";
 		exit(5);
